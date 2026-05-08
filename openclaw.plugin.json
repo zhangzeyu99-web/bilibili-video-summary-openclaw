@@ -1,0 +1,13 @@
+{
+  "id": "bilibili-video-summary",
+  "name": "Bilibili Video Summary",
+  "description": "OpenClaw skill pack for fast Bilibili video material collection and summarization.",
+  "version": "0.1.0",
+  "activation": {
+    "onStartup": false
+  },
+  "enabledByDefault": true,
+  "skills": [
+    "./skills/bilibili-video-summary"
+  ]
+}

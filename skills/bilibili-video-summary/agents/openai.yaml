@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bilibili Video Summary"
+  short_description: "Fast Bilibili summary material"
+  default_prompt: "Summarize this Bilibili video using official subtitles first."
