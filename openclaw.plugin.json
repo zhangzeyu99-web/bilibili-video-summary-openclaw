@@ -9,5 +9,10 @@
   "enabledByDefault": true,
   "skills": [
     "./skills/bilibili-video-summary"
-  ]
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
 }
