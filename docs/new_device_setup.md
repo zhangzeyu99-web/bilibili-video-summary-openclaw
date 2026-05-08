@@ -54,6 +54,21 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1 -InstallAsr
 python tools\bili_video_material.py "BVxxxx" --depth deep --asr auto
 ```
 
+## 启用画面抽帧 fallback
+
+无字幕、无语音或 ASR 为空时，运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1 -InstallVisual
+python tools\bili_video_frames.py "BVxxxx" --max-frames 12
+```
+
+然后查看：
+
+```text
+video_summaries\<BVID>\frames_montage.jpg
+```
+
 ## 常见问题
 
 `Cannot find bili executable`：

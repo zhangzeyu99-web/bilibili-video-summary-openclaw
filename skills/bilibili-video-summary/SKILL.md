@@ -1,59 +1,53 @@
 ---
 name: bilibili-video-summary
-description: Use when summarizing Bilibili videos from BV IDs or bilibili.com links, especially when official subtitles, AI summaries, fast material extraction, or ASR fallback are needed.
+description: Use when summarizing Bilibili or B站 videos from BV IDs, bilibili.com URLs, or b23.tv short links; especially when official subtitles, AI summaries, ASR fallback, visual frame extraction, or fast video-summary material collection are needed.
 ---
 
 # Bilibili Video Summary
 
-Use this skill to collect Bilibili video material before writing a summary. The workflow prefers official Bilibili metadata, AI summary, and subtitles, then falls back to audio ASR only when necessary.
+Use this skill to collect Bilibili video material before writing a summary. Prefer official metadata, AI summary, and subtitles. Use ASR only when text is missing. Use visual frame extraction when the video is visual-only or ASR returns empty text.
 
 ## Workflow
 
-1. Resolve the BV id from the user input. Accept either `BV...` or a `bilibili.com/video/...` URL.
-2. From this skill directory, run:
+1. Run the fast text-first pass:
 
    ```powershell
-   python scripts\bili_video_material.py "<BV-or-URL>"
+   python scripts\bili_video_material.py "<BV-or-URL>" --depth quick --asr never
    ```
 
-   The script writes output under `video_summaries\<BVID>\` in the current workspace.
+2. Read `video_summaries\<BVID>\summary_input.md` and `material.json`.
+3. If official AI summary or transcript text is useful, write the final summary from those materials.
+4. If transcript text is empty, rerun with ASR:
 
-3. Read `video_summaries\<BVID>\summary_input.md`.
-4. Write the final answer from the collected material, not from memory. Keep the summary concise and separate facts from inference when the video material is incomplete.
+   ```powershell
+   python scripts\bili_video_material.py "<BV-or-URL>" --depth deep --asr auto --asr-model base
+   ```
 
-## Speed Policy
+5. If ASR is still empty, extract visual frames:
 
-- Default mode uses official Bilibili AI summary and subtitles first.
-- If subtitles are available, do not run ASR.
-- Use quick official-only mode when the user cares most about speed:
+   ```powershell
+   python scripts\bili_video_frames.py "<BV-or-URL>" --max-frames 12
+   ```
 
-  ```powershell
-  python scripts\bili_video_material.py "<BV-or-URL>" --depth quick --asr never
-  ```
+   Open `video_summaries\<BVID>\frames_montage.jpg` and summarize from the image sequence. Clearly say the summary is based on visual frames when there is no subtitle or speech transcript.
 
-- Use ASR only when official subtitles are missing and the user needs a deeper summary:
+## Output Policy
 
-  ```powershell
-  python scripts\bili_video_material.py "<BV-or-URL>" --depth deep --asr auto
-  ```
+- Default to Chinese final summaries unless the user asks otherwise.
+- Separate confirmed video facts from inference.
+- Do not invent narration when official subtitles and ASR are empty.
+- For short videos, include title, BV id, duration, source basis, core message, and practical judgment.
 
 ## Dependencies
 
 Required:
 
 - Python 3.10+
-- `bili` from `bilibili-cli`, authenticated with Bilibili if the video requires login
+- `bili` from `bilibili-cli`, authenticated when needed
 
-Optional for ASR fallback:
+Optional:
 
-- `faster-whisper`
-- FFmpeg or a media stack supported by the local audio decoder
+- `faster-whisper` for ASR fallback
+- `av` and `pillow` for visual frame extraction
 
-If `bili` login has expired, run `bili login` in the user's terminal/browser flow, then retry the script.
-
-## Expected Outputs
-
-- `summary_input.md`: compact prompt material for the assistant
-- `transcript.txt`: transcript text only
-- `material.json`: structured metadata, official AI summary, subtitles, transcript, and run logs
-- `run_log.json`: command timings and fallback decisions
+If `bili` is not on PATH, the bundled script scans common Python `Scripts` directories. If login expires, run `bili login` and retry.

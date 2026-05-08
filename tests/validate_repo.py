@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "bilibili-video-summary"
 TOOL_SCRIPT = ROOT / "tools" / "bili_video_material.py"
 SKILL_SCRIPT = SKILL_DIR / "scripts" / "bili_video_material.py"
+FRAME_TOOL_SCRIPT = ROOT / "tools" / "bili_video_frames.py"
+FRAME_SKILL_SCRIPT = SKILL_DIR / "scripts" / "bili_video_frames.py"
 
 
 def fail(message: str) -> None:
@@ -51,7 +53,10 @@ def validate_metadata() -> None:
     require(manifest.get("configSchema", {}).get("additionalProperties") is False, "plugin configSchema must be strict")
 
     for rel in package.get("files", []):
-        require((ROOT / rel).exists(), f"package files entry does not exist: {rel}")
+        if "*" in rel:
+            require(bool(list(ROOT.glob(rel))), f"package files glob matches nothing: {rel}")
+        else:
+            require((ROOT / rel).exists(), f"package files entry does not exist: {rel}")
 
 
 def validate_skill() -> None:
@@ -65,15 +70,19 @@ def validate_skill() -> None:
 def validate_scripts() -> None:
     require(TOOL_SCRIPT.exists(), "tools script is missing")
     require(SKILL_SCRIPT.exists(), "skill script is missing")
+    require(FRAME_TOOL_SCRIPT.exists(), "visual frame tool script is missing")
+    require(FRAME_SKILL_SCRIPT.exists(), "visual frame skill script is missing")
     require(sha256(TOOL_SCRIPT) == sha256(SKILL_SCRIPT), "tool script and skill script must stay identical")
+    require(sha256(FRAME_TOOL_SCRIPT) == sha256(FRAME_SKILL_SCRIPT), "frame tool script and skill script must stay identical")
 
-    for script in (TOOL_SCRIPT, SKILL_SCRIPT):
+    for script in (TOOL_SCRIPT, SKILL_SCRIPT, FRAME_TOOL_SCRIPT, FRAME_SKILL_SCRIPT):
         tmp_pyc = Path(tempfile.gettempdir()) / f"{script.stem}-{sha256(script)[:12]}.pyc"
         try:
             py_compile.compile(str(script), cfile=str(tmp_pyc), doraise=True)
         finally:
             tmp_pyc.unlink(missing_ok=True)
     subprocess.run([sys.executable, str(TOOL_SCRIPT), "--help"], check=True, stdout=subprocess.DEVNULL)
+    subprocess.run([sys.executable, str(FRAME_TOOL_SCRIPT), "--help"], check=True, stdout=subprocess.DEVNULL)
 
 
 def validate_docs() -> None:

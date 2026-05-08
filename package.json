@@ -16,13 +16,16 @@
     "LICENSE",
     "index.js",
     "openclaw.plugin.json",
-    "skills",
-    "tools",
-    "scripts",
-    "docs",
+    "skills/bilibili-video-summary/SKILL.md",
+    "skills/bilibili-video-summary/agents/openai.yaml",
+    "skills/bilibili-video-summary/scripts/*.py",
+    "tools/*.py",
+    "scripts/setup.ps1",
+    "docs/*.md",
     "README.md",
     "requirements.txt",
-    "requirements-asr.txt"
+    "requirements-asr.txt",
+    "requirements-visual.txt"
   ],
   "scripts": {
     "validate": "python tests/validate_repo.py",

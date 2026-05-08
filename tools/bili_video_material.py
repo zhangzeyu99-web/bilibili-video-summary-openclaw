@@ -18,11 +18,19 @@ import subprocess
 import sys
 import sysconfig
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 from typing import Any
 
 
 BVID_RE = re.compile(r"BV[0-9A-Za-z]{10}")
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[override]
+        return None
 
 
 def parse_args() -> argparse.Namespace:
@@ -60,11 +68,40 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def resolve_redirect_location(value: str) -> str | None:
+    parsed = urllib.parse.urlparse(value)
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    opener = urllib.request.build_opener(NoRedirect)
+    req = urllib.request.Request(
+        value,
+        headers={
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://www.bilibili.com",
+        },
+    )
+    try:
+        response = opener.open(req, timeout=20)
+        return response.geturl()
+    except urllib.error.HTTPError as exc:
+        if 300 <= exc.code < 400:
+            location = exc.headers.get("Location")
+            return urllib.parse.urljoin(value, location) if location else None
+        return None
+    except Exception:
+        return None
+
+
 def extract_bvid(value: str) -> str:
     match = BVID_RE.search(value)
-    if not match:
-        raise SystemExit(f"No BV id found in input: {value}")
-    return match.group(0)
+    if match:
+        return match.group(0)
+    redirected = resolve_redirect_location(value)
+    if redirected:
+        match = BVID_RE.search(redirected)
+        if match:
+            return match.group(0)
+    raise SystemExit(f"No BV id found in input: {value}")
 
 
 def bili_exe(explicit: str | None) -> str:

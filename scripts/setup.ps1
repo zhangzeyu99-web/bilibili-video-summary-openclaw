@@ -3,6 +3,7 @@
 param(
   [string]$Python = "python",
   [switch]$InstallAsr,
+  [switch]$InstallVisual,
   [switch]$Login,
   [switch]$SmokeTest
 )
@@ -91,6 +92,10 @@ try {
 
   if ($InstallAsr) {
     Invoke-Checked $Python -m pip install --user -r requirements-asr.txt
+  }
+
+  if ($InstallVisual) {
+    Invoke-Checked $Python -m pip install --user -r requirements-visual.txt
   }
 
   $bili = Find-Bili

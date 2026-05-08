@@ -42,6 +42,12 @@ openclaw gateway restart
 powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1 -Login -SmokeTest -InstallAsr
 ```
 
+如果要启用无字幕、无语音视频的画面抽帧 fallback，再加 `-InstallVisual`：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1 -InstallVisual
+```
+
 ## 使用方式
 
 OpenClaw 里触发 `bilibili-video-summary` 后，skill 会按下面流程收集材料。也可以直接运行工具脚本：
