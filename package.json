@@ -5,12 +5,18 @@
   "type": "module",
   "private": false,
   "files": [
+    "index.js",
     "openclaw.plugin.json",
     "skills",
     "tools",
     "docs",
     "README.md"
   ],
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ]
+  },
   "keywords": [
     "openclaw",
     "skill",
