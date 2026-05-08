@@ -4,3 +4,5 @@ __pycache__/
 video_summaries/
 skill_test_output/
 .bilibili-cli/
+*.tgz
+.pytest_cache/

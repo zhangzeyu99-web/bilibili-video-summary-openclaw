@@ -13,8 +13,10 @@ import json
 import os
 import re
 import shutil
+import site
 import subprocess
 import sys
+import sysconfig
 import time
 from pathlib import Path
 from typing import Any
@@ -66,17 +68,40 @@ def extract_bvid(value: str) -> str:
 
 
 def bili_exe(explicit: str | None) -> str:
-    candidates = []
+    candidates: list[Path] = []
+    executable_names = ["bili.exe", "bili.cmd", "bili"]
     if explicit:
         candidates.append(Path(explicit))
-    found = shutil.which("bili")
-    if found:
-        candidates.append(Path(found))
+    for name in executable_names:
+        found = shutil.which(name)
+        if found:
+            candidates.append(Path(found))
+
+    for scripts_dir in {
+        sysconfig.get_path("scripts"),
+        str(Path(getattr(site, "USER_BASE", "")) / "Scripts") if getattr(site, "USER_BASE", "") else "",
+    }:
+        if scripts_dir:
+            for name in executable_names:
+                candidates.append(Path(scripts_dir) / name)
+
     appdata = os.environ.get("APPDATA")
     if appdata:
-        candidates.append(Path(appdata) / "Python" / "Python314" / "Scripts" / "bili.exe")
+        for name in executable_names:
+            candidates.extend((Path(appdata) / "Python").glob(f"Python*/Scripts/{name}"))
+
+    localappdata = os.environ.get("LOCALAPPDATA")
+    if localappdata:
+        for name in executable_names:
+            candidates.extend((Path(localappdata) / "Programs" / "Python").glob(f"Python*/Scripts/{name}"))
+
+    seen: set[str] = set()
     for candidate in candidates:
-        if candidate and candidate.exists():
+        key = str(candidate).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        if candidate.exists():
             return str(candidate)
     raise SystemExit("Cannot find bili executable. Pass --bili or install bilibili-cli.")
 

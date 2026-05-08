@@ -4,14 +4,33 @@
   "description": "OpenClaw skill pack for fast Bilibili video material collection and summarization.",
   "type": "module",
   "private": false,
+  "homepage": "https://github.com/zhangzeyu99-web/bilibili-video-summary-openclaw#readme",
+  "bugs": {
+    "url": "https://github.com/zhangzeyu99-web/bilibili-video-summary-openclaw/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhangzeyu99-web/bilibili-video-summary-openclaw.git"
+  },
   "files": [
+    "LICENSE",
     "index.js",
     "openclaw.plugin.json",
     "skills",
     "tools",
+    "scripts",
     "docs",
-    "README.md"
+    "README.md",
+    "requirements.txt",
+    "requirements-asr.txt"
   ],
+  "scripts": {
+    "validate": "python tests/validate_repo.py",
+    "pack:check": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "openclaw": {
     "extensions": [
       "./index.js"
