@@ -1,0 +1,7 @@
+.git/
+__pycache__/
+*.pyc
+.venv/
+video_summaries/
+skill_test_output/
+.bilibili-cli/

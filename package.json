@@ -1,0 +1,21 @@
+{
+  "name": "bilibili-video-summary-openclaw",
+  "version": "0.1.0",
+  "description": "OpenClaw skill pack for fast Bilibili video material collection and summarization.",
+  "type": "module",
+  "private": false,
+  "files": [
+    "openclaw.plugin.json",
+    "skills",
+    "tools",
+    "docs",
+    "README.md"
+  ],
+  "keywords": [
+    "openclaw",
+    "skill",
+    "bilibili",
+    "video-summary"
+  ],
+  "license": "MIT"
+}
